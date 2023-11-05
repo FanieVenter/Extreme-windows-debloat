@@ -1,47 +1,39 @@
-# Extreme Windows Optimization for Fortnite and Epic Games Launcher
+# Windows Optimization Script for Fortnite and Epic Games Launcher
 
 # Disable Unnecessary Services
 Write-Host "Disabling Unnecessary Services..."
-Set-Service -Name 'wuauserv' -StartupType 'Disabled'
-Set-Service -Name 'wsearch' -StartupType 'Disabled'
-Set-Service -Name 'ERSvc' -StartupType 'Disabled'
-Set-Service -Name 'SSDPSRV' -StartupType 'Disabled'
-Set-Service -Name 'wscsvc' -StartupType 'Disabled'
-Set-Service -Name 'AdobeARMservice' -StartupType 'Disabled'
-Set-Service -Name 'WMPNetworkSvc' -StartupType 'Disabled'
-Set-Service -Name 'DPS' -StartupType 'Disabled'
-Set-Service -Name 'Themes' -StartupType 'Disabled'
 
-# Disable Windows Defender
-Write-Host "Disabling Windows Defender..."
-Set-MpPreference -DisableRealtimeMonitoring $true
+# Disable Windows Update Service (wuauserv) if it exists
+if (Get-Service -Name 'wuauserv' -ErrorAction SilentlyContinue) {
+    Set-Service -Name 'wuauserv' -StartupType 'Disabled'
+}
 
-# Disable Windows Firewall
-Write-Host "Disabling Windows Firewall..."
-Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+# Disable Windows Search Service (wsearch) if it exists
+if (Get-Service -Name 'wsearch' -ErrorAction SilentlyContinue) {
+    Set-Service -Name 'wsearch' -StartupType 'Disabled'
+}
+
+# Check and disable Windows Defender if it exists
+if (Get-Service -Name 'WinDefend' -ErrorAction SilentlyContinue) {
+    Set-Service -Name 'WinDefend' -StartupType 'Disabled'
+}
+
+# Check and disable Windows Firewall service if it exists
+if (Get-Service -Name 'MpsSvc' -ErrorAction SilentlyContinue) {
+    Set-Service -Name 'MpsSvc' -StartupType 'Disabled'
+}
 
 # Remove Built-in Apps
 Write-Host "Removing Built-in Apps..."
-Get-AppxPackage -allusers *3DBuilder* | Remove-AppxPackage
-Get-AppxPackage -allusers *Alarms* | Remove-AppxPackage
-Get-AppxPackage -allusers *Camera* | Remove-AppxPackage
+Get-AppxPackage -allusers *3DBuilder* | Remove-AppxPackage -ErrorAction SilentlyContinue
+Get-AppxPackage -allusers *Alarms* | Remove-AppxPackage -ErrorAction SilentlyContinue
+Get-AppxPackage -allusers *Camera* | Remove-AppxPackage -ErrorAction SilentlyContinue
 
-# Disable unnecessary system tasks
-Write-Host "Disabling unnecessary system tasks..."
-Unregister-ScheduledTask -TaskName "Microsoft\Windows\AppID\PolicyConverter"
-Unregister-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy"
-Unregister-ScheduledTask -TaskName "Microsoft\Windows\Shell\FamilySafetyMonitor"
-
-# Optimize Network Settings
+# Optimize Network Settings - Considered aggressive, use with caution
 Write-Host "Optimizing Network Settings..."
 # Limiting the bandwidth used by background updates
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Value 0
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v DODownloadMode /t REG_DWORD /d 0 /f
 # Disabling Windows Update peer-to-peer sharing
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Value 0
-# Disabling the Windows Update Background Intelligent Transfer Service (BITS)
-Set-Service -Name 'BITS' -StartupType 'Disabled'
-# Turning off Windows Update service
-Set-Service -Name 'wuauserv' -StartupType 'Disabled'
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v DODownloadMode /t REG_DWORD /d 0 /f
 
-Write-Host "Extreme optimization completed. Please restart your computer."
-
+Write-Host "Optimization completed. Please restart your VM."
