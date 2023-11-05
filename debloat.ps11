@@ -1,0 +1,47 @@
+# Extreme Windows Optimization for Fortnite and Epic Games Launcher
+
+# Disable Unnecessary Services
+Write-Host "Disabling Unnecessary Services..."
+Set-Service -Name 'wuauserv' -StartupType 'Disabled'
+Set-Service -Name 'wsearch' -StartupType 'Disabled'
+Set-Service -Name 'ERSvc' -StartupType 'Disabled'
+Set-Service -Name 'SSDPSRV' -StartupType 'Disabled'
+Set-Service -Name 'wscsvc' -StartupType 'Disabled'
+Set-Service -Name 'AdobeARMservice' -StartupType 'Disabled'
+Set-Service -Name 'WMPNetworkSvc' -StartupType 'Disabled'
+Set-Service -Name 'DPS' -StartupType 'Disabled'
+Set-Service -Name 'Themes' -StartupType 'Disabled'
+
+# Disable Windows Defender
+Write-Host "Disabling Windows Defender..."
+Set-MpPreference -DisableRealtimeMonitoring $true
+
+# Disable Windows Firewall
+Write-Host "Disabling Windows Firewall..."
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
+# Remove Built-in Apps
+Write-Host "Removing Built-in Apps..."
+Get-AppxPackage -allusers *3DBuilder* | Remove-AppxPackage
+Get-AppxPackage -allusers *Alarms* | Remove-AppxPackage
+Get-AppxPackage -allusers *Camera* | Remove-AppxPackage
+
+# Disable unnecessary system tasks
+Write-Host "Disabling unnecessary system tasks..."
+Unregister-ScheduledTask -TaskName "Microsoft\Windows\AppID\PolicyConverter"
+Unregister-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy"
+Unregister-ScheduledTask -TaskName "Microsoft\Windows\Shell\FamilySafetyMonitor"
+
+# Optimize Network Settings
+Write-Host "Optimizing Network Settings..."
+# Limiting the bandwidth used by background updates
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Value 0
+# Disabling Windows Update peer-to-peer sharing
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Value 0
+# Disabling the Windows Update Background Intelligent Transfer Service (BITS)
+Set-Service -Name 'BITS' -StartupType 'Disabled'
+# Turning off Windows Update service
+Set-Service -Name 'wuauserv' -StartupType 'Disabled'
+
+Write-Host "Extreme optimization completed. Please restart your computer."
+
